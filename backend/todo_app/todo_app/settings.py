@@ -28,16 +28,26 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'tasks',
     'rest_framework',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5500",
+    "http://127.0.0.1:5500",
+    "http://localhost:3001",
+    "http://127.0.0.1:3001",
+    "https://t3.academy.dunice-testing.com",
 ]
 
 ROOT_URLCONF = 'todo_app.urls'
