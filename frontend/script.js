@@ -50,16 +50,17 @@ function main() {
     function AddTask() {
         let taskText = textOnInputLineValidation(INPUT_LINE);
         if (taskText) {
-            fetch(SERVER_URL, {
+            let result = fetch(SERVER_URL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json;charset=utf-8'
                 },
                 body: JSON.stringify({'text': taskText, 'status': false})
             })
-            
+            // if (result.ok) renderFunction()
+
             .then(renderFunction())
-            .then(clearInput)
+            .then(clearInput())
             // changeCurrentNumberPage();
             
         }
@@ -68,6 +69,20 @@ function main() {
     function clearInput() {
         INPUT_LINE.value = "";
         INPUT_LINE.focus();
+    }
+
+    function deleteTask(event) {
+        if (event.target.type === 'button') {
+            fetch(`${SERVER_URL}${+event.target.dataset.id}/`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                },
+            })
+            .then(renderFunction);
+            // taskList = taskList.filter(task => task.id !== taskId);
+            // decreaseCurrentNumberPage()
+        }
     }
 
     function changeStatusTask(event) {
@@ -91,25 +106,56 @@ function main() {
         // renderFunction();
     }
 
-    function deleteTask(event) {
-        if (event.target.type === 'button') {
-            fetch(`${SERVER_URL}${+event.target.dataset.id}/`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json;charset=utf-8'
-                },
-            })
-            .then(renderFunction);
-            // taskList = taskList.filter(task => task.id !== taskId);
-            // decreaseCurrentNumberPage()
-        }
-    }
+
 
     function selectAllTasks(event) {
         if (event.target.type === "checkbox" && INPUT_CHECKBOX.checked) {
-            taskList.forEach(task => task.isDone = INPUT_CHECKBOX.checked);
+            // taskList.forEach(task => task.isDone = INPUT_CHECKBOX.checked);
+
         }
         renderFunction();
+    }
+
+    function editTask(event) {
+        if (event.target.tagName === 'SPAN') {
+            let taskId = +event.target.dataset.id;
+            let currentSpan = document.querySelector(`span[data-id="${taskId}"]`);
+            currentSpan.className = 'hidden';
+            let currentInput = document.querySelectorAll(`input[data-id="${taskId}"]`)[1];
+            currentInput.type = 'text';
+
+            currentInput.focus();
+            currentInput.selectionStart = currentInput.value.length;
+            
+            const checkButton = function(event) {
+                if (event.key === KEY_ENTER) {
+                    changeTextTask();
+                }
+                else if (event.key === KEY_ESCAPE) {
+                    currentInput.removeEventListener("blur", changeTextTask);
+                    renderFunction();
+                }
+            }
+
+            const changeTextTask = function() {
+                let text = textOnInputLineValidation(currentInput);
+                if (text){
+                    // task.text = text
+                    fetch(`${SERVER_URL}${taskId}/`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json;charset=utf-8'
+                        },
+                        body: JSON.stringify({'text': text})
+                    })
+                    .then(renderFunction);
+                }
+            }
+
+            currentInput.addEventListener('keydown', checkButton);
+            currentInput.addEventListener('blur', changeTextTask);
+        }
+                // renderFunction();
     }
 
     function getCurrentTasks(array) {
@@ -137,44 +183,7 @@ function main() {
         renderFunction();
     }
 
-    function editTask(event) {
-        if (event.target.tagName === 'SPAN') {
-            let taskId = +event.target.dataset.id;
-            let currentSpan = document.querySelector(`span[data-id="${taskId}"]`);
-            currentSpan.className = 'hidden';
-            let currentInput = document.querySelectorAll(`input[data-id="${taskId}"]`)[1];
-            currentInput.type = 'text';
 
-            currentInput.focus();
-            currentInput.selectionStart = currentInput.value.length;
-
-            const checkButton = function(event) {
-                if (event.key === KEY_ENTER) {
-                    changeTextTask();
-                }
-                else if (event.key === KEY_ESCAPE) {
-                    currentInput.removeEventListener("blur", changeTextTask);
-                    renderFunction();
-                }
-            }
-
-            const changeTextTask = function() {
-                let text = textOnInputLineValidation(currentInput);
-                if (text){
-                taskList.forEach((task) => {
-                    if (task.id === taskId) {
-                        task.text = text
-                    }
-                })
-                }
-                renderFunction();
-            }
-            
-            currentInput.addEventListener('keydown', checkButton);
-            currentInput.addEventListener('blur', changeTextTask);
-
-        }
-    }
 
     function paginationButtonsRender(finalArray) {
         let buttonsCount = Math.ceil(finalArray.length / TASKS_ON_PAGE);
