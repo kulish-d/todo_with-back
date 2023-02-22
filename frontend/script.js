@@ -56,11 +56,11 @@ function main() {
                     'Content-Type': 'application/json;charset=utf-8'
                 },
                 body: JSON.stringify({'text': taskText, 'status': false})
-            })
-            // if (result.ok) renderFunction()
+            }).then(res => res.ok ? renderFunction(): console.log('error'))
+            .finally(clearInput())
 
-            .then(renderFunction())
-            .then(clearInput())
+            // .then(renderFunction())
+            // .then(clearInput())
             // changeCurrentNumberPage();
             
         }
