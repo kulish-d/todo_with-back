@@ -109,11 +109,21 @@ function main() {
 
 
     function selectAllTasks(event) {
-        if (event.target.type === "checkbox" && INPUT_CHECKBOX.checked) {
+        // if (event.target.type === "checkbox" && INPUT_CHECKBOX.checked) {
             // taskList.forEach(task => task.isDone = INPUT_CHECKBOX.checked);
-
-        }
-        renderFunction();
+            try {
+                fetch(`${SERVER_URL}check_all/`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json;charset=utf-8'
+                        },
+                        body: JSON.stringify({'status': INPUT_CHECKBOX.checked})
+                    })
+                    
+            .then(res => res.ok ? renderFunction(): console.log('error'))
+            .then(console.log(INPUT_CHECKBOX.checked))
+            } catch(e) {alert(e)};
+        // }
     }
 
     function editTask(event) {
@@ -178,9 +188,18 @@ function main() {
     }
 
     function deleteDoneTasks() {
-        taskList = taskList.filter(task => !task.isDone);
-        decreaseCurrentNumberPage();
-        renderFunction();
+        try {
+            fetch(`${SERVER_URL}delete_all_checked/`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                }
+            })
+            .then(res => res.ok ? renderFunction(): console.log('error'))
+        } catch (e) {alert(e)}
+        // taskList = taskList.filter(task => !task.isDone);
+        // decreaseCurrentNumberPage();
+        // renderFunction();
     }
 
 
@@ -241,15 +260,16 @@ function main() {
         return someArray;
     }
 
-    function drawTabs(taskList) {
-        ALL_TASKS_BUTTON.innerText = `ALL ${taskList.length}`;
-        ACTIVE_TASKS_BUTTON.innerText = `ACTIVE ${taskList.filter(task => !task.status).length}`;
-        COMPLETED_TASKS_BUTTON.innerText = `COMPLETED ${taskList.filter(task => task.status).length}`;
-        return taskList;
+    function drawTabs(someArray) {
+        ALL_TASKS_BUTTON.innerText = `ALL ${someArray.length}`;
+        ACTIVE_TASKS_BUTTON.innerText = `ACTIVE ${someArray.filter(task => !task.status).length}`;
+        COMPLETED_TASKS_BUTTON.innerText = `COMPLETED ${someArray.filter(task => task.status).length}`;
+        return someArray;
     }
 
-    function checkAll() {
-        if (taskList.length) INPUT_CHECKBOX.checked = taskList.every(task => task.status);
+    function checkAll(someArray) {
+        if (someArray.length) INPUT_CHECKBOX.checked = someArray.every(task => task.status);
+        return someArray;
     }
 
     function renderFunction() {
@@ -258,6 +278,7 @@ function main() {
 
         .then((response) => { return response.json()})
         .then(res => drawTasks(res))
+        .then(res => checkAll(res))
         .then(res => drawTabs(res))
 
         // .then(drawCurrentTab())
