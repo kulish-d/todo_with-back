@@ -2,9 +2,9 @@ function main() {
     // let taskList = [];
     let categorySwitcher = 'all';
     let SERVER_URL = 'http://127.0.0.1:8000/api/tasks/';
-    // let currentNumberPage = 1;
+    let currentNumberPage = 1;
 
-    // const TASKS_ON_PAGE = 5;
+    const TASKS_ON_PAGE = 5;
     const KEY_ENTER = 'Enter';
     const KEY_ESCAPE = 'Escape';
     const { _ } = window;
@@ -122,7 +122,7 @@ function main() {
                     
             .then(res => res.ok ? renderFunction(): console.log('error'))
             // .then(console.log(INPUT_CHECKBOX.checked))
-            } catch(e) {alert(e)};
+            } catch(err) {alert(err)};
         // }
     }
 
@@ -228,19 +228,19 @@ function main() {
     function drawCurrentTab() {
         switch(categorySwitcher) {
             case "all":
-                ALL_TASKS_BUTTON.classList.add("btn-dark");
-                ACTIVE_TASKS_BUTTON.classList.remove("btn-dark");
-                COMPLETED_TASKS_BUTTON.classList.remove("btn-dark");
+                ALL_TASKS_BUTTON.classList.add("btn-outline-dark");
+                ACTIVE_TASKS_BUTTON.classList.remove("btn-outline-dark");
+                COMPLETED_TASKS_BUTTON.classList.remove("btn-outline-dark");
                 break;
             case "active":
-                ALL_TASKS_BUTTON.classList.remove("btn-dark");
-                ACTIVE_TASKS_BUTTON.classList.add("btn-dark");
-                COMPLETED_TASKS_BUTTON.classList.remove("btn-dark");
+                ALL_TASKS_BUTTON.classList.remove("btn-outline-dark");
+                ACTIVE_TASKS_BUTTON.classList.add("btn-outline-dark");
+                COMPLETED_TASKS_BUTTON.classList.remove("btn-outline-dark");
                 break;
             case "completed":
-                ALL_TASKS_BUTTON.classList.remove("btn-dark");
-                ACTIVE_TASKS_BUTTON.classList.remove("btn-dark");
-                COMPLETED_TASKS_BUTTON.classList.add("btn-dark");
+                ALL_TASKS_BUTTON.classList.remove("btn-outline-dark");
+                ACTIVE_TASKS_BUTTON.classList.remove("btn-outline-dark");
+                COMPLETED_TASKS_BUTTON.classList.add("btn-outline-dark");
                 break;
         }
     }
@@ -272,7 +272,7 @@ function main() {
 
     function renderFunction() {
 
-        fetch(`${SERVER_URL}?task_category=${categorySwitcher}`)
+        fetch(`${SERVER_URL}?task_category=${categorySwitcher}&number_page=${currentNumberPage}`)
 
         .then((response) => {
             if (response.status === 200) {
@@ -286,7 +286,9 @@ function main() {
             console.log(result);
             drawTasks(result.data);
             checkAll(result.checkbox_all_status);
-            drawTabs(result.tasks_data)
+            drawTabs(result.tasks_data);
+            drawCurrentTab();
+            //paginationButtonsRender(result.data);
         })
         // .then(res => console.log(res))
         // .then(res => drawTasks(res))

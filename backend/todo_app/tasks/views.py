@@ -1,9 +1,11 @@
+from django.core.paginator import Paginator
 from rest_framework import viewsets
 from rest_framework import status
 from rest_framework.response import Response
 
 from tasks.models import Task
 from tasks.serializers import TaskSerializer
+from todo_app.settings import TASKS_ON_PAGE
 
 class TasksViewSet(viewsets.ViewSet):
     def list(self, request):
@@ -15,6 +17,12 @@ class TasksViewSet(viewsets.ViewSet):
         else:
             queryset = Task.objects.all()
         queryset = queryset.order_by('id')
+
+        # request_page = request.GET['page']
+
+        paginator = Paginator(queryset, TASKS_ON_PAGE)
+        # print(paginator.num_pages)
+
         serializer = TaskSerializer(queryset, many=True)
         tasks_data = {
             'all_tasks_count': Task.objects.all().count(),
@@ -22,8 +30,12 @@ class TasksViewSet(viewsets.ViewSet):
             'completed_tasks_count': Task.objects.filter(status=True).count() 
         }
         checkbox_all_status = tasks_data['all_tasks_count'] == tasks_data['completed_tasks_count']
-        # print(tasks_data, checkbox_all_status)
-        return Response({'data': serializer.data, 'tasks_data': tasks_data, 'checkbox_all_status': checkbox_all_status})
+        return Response({
+            'data': serializer.data,
+            'tasks_data': tasks_data,
+            'checkbox_all_status': checkbox_all_status,
+            'pagination': paginator.num_pages},
+            status=status.HTTP_200_OK)
     
     def create(self, request):
         serializer = TaskSerializer(data=request.data)
@@ -48,8 +60,6 @@ class TasksViewSet(viewsets.ViewSet):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         Task.objects.exclude(status=request.data['status']).update(status=request.data['status'])
         return Response(status=status.HTTP_200_OK)
-
-        
 
     def destroy(self, request, pk=None):
         #task = Task.objects.get(id=pk)

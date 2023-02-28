@@ -12,13 +12,17 @@ body {
     display: flex;
     flex-direction: column;
     margin-top: 200px;
+    /* min-width: 300px; */
     justify-content: center;
     align-items: center;
 }
 
 .form-control {
     margin-bottom: 10px;
-    width: 500px;
+    /* width: 500px; */
+    /* width: 100%; */
+    /* width: auto; */
+    max-width: 525px;
 }
 
 body button {
@@ -56,7 +60,10 @@ body button {
 .task {
     display: flex;
     justify-content: space-between;
-    width: 400px;
+    align-items: center;
+    /* width: 400px; */
+    width: auto;
+    max-width: 525px;
     word-break: break-all;
 }
 
@@ -69,6 +76,7 @@ body button {
 .container {
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
 }
 
