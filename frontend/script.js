@@ -26,21 +26,6 @@ function main() {
         return _.escape(someInput.value.replace(/\s+/g, ' ').trim());
     }
 
-    // function decreaseCurrentNumberPage() {
-    //     if (Math.ceil(getCurrentTasks(taskList).length / TASKS_ON_PAGE) === currentNumberPage - 1) {
-    //         currentNumberPage -= 1;
-    //     }
-    //     else {
-    //         currentNumberPage = Math.ceil(getCurrentTasks(taskList).length / TASKS_ON_PAGE);
-    //     }
-    // }
-
-    // function changeCurrentNumberPage() {
-    //     if (Math.ceil(getCurrentTasks(taskList).length / TASKS_ON_PAGE) > currentNumberPage) {
-    //         currentNumberPage = Math.ceil(getCurrentTasks(taskList).length / TASKS_ON_PAGE);
-    //     }
-    // }
-
     function onPressEnterAddTask(event) {
         if(event.key === KEY_ENTER) {
             AddTask();
@@ -50,7 +35,7 @@ function main() {
     function AddTask() {
         let taskText = textOnInputLineValidation(INPUT_LINE);
         if (taskText) {
-            let result = fetch(SERVER_URL, {
+            fetch(SERVER_URL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json;charset=utf-8'
@@ -105,8 +90,6 @@ function main() {
         // }
         // renderFunction();
     }
-
-
 
     function selectAllTasks(event) {
         // if (event.target.type === "checkbox" && INPUT_CHECKBOX.checked) {
@@ -168,17 +151,6 @@ function main() {
                 // renderFunction();
     }
 
-    // function getCurrentTasks(array) {
-    //         switch (categorySwitcher) {
-    //             case 'all':
-    //                 return array;
-    //             case 'active':
-    //                 return array.filter(task => !task.isDone);
-    //             case 'completed':
-    //                 return array.filter(task => task.isDone);
-    //         }
-    // }
-
     function changeActualCategoryOfTasks(event) {
         if (event.target.type == 'button') {
             categorySwitcher = event.target.id;
@@ -204,22 +176,39 @@ function main() {
 
 
 
-    function paginationButtonsRender(finalArray) {
-        let buttonsCount = Math.ceil(finalArray.length / TASKS_ON_PAGE);
+    function paginationButtonsRender(serverData) {
+        // let buttonsCount = Math.ceil(serverData / TASKS_ON_PAGE);
         let buttons = "";
-        for (let i = 1; i <= buttonsCount; i++) {
+        for (let i = 1; i <= serverData; i++) {
             buttons += 
                 `<button type="button" class='${(i === currentNumberPage) ? "btn btn-dark" : "btn btn-light"}' id='${i}'>${i}</button>`;
         }
         PAGINATION_DIV_CONTAINER.innerHTML = buttons;
     }
 
-    function getNumberOfCurrentPage(event) {
+    function setNumberOfCurrentPage(event) {
         if (event.target.type === 'button') {
             currentNumberPage = +event.target.id;
             renderFunction();
         }
     }
+
+    // function decreaseCurrentNumberPage() {
+    //     if (Math.ceil(getCurrentTasks(taskList).length / TASKS_ON_PAGE) === currentNumberPage - 1) {
+    //         currentNumberPage -= 1;
+    //     }
+    //     else {
+    //         currentNumberPage = Math.ceil(getCurrentTasks(taskList).length / TASKS_ON_PAGE);
+    //     }
+    // }
+
+    function changeCurrentNumberPage(serverData) {
+        // if (Math.ceil(getCurrentTasks(taskList).length / TASKS_ON_PAGE) > currentNumberPage) {
+            // currentNumberPage = Math.ceil(getCurrentTasks(taskList).length / TASKS_ON_PAGE);
+            currentNumberPage = serverData;
+        // }
+    }
+
 
     // function getCurrentArray(arr) {
     //     return arr.slice((currentNumberPage-1)*TASKS_ON_PAGE, currentNumberPage*TASKS_ON_PAGE)
@@ -288,7 +277,8 @@ function main() {
             checkAll(result.checkbox_all_status);
             drawTabs(result.tasks_data);
             drawCurrentTab();
-            //paginationButtonsRender(result.data);
+            paginationButtonsRender(result.pagination.count_pages);
+            // changeCurrentNumberPage(result.pagination.count_pages);
         })
         // .then(res => console.log(res))
         // .then(res => drawTasks(res))
@@ -310,7 +300,7 @@ function main() {
     OUTPUT_DIV.addEventListener('click', deleteTask);
     DELETE_COMPLETED_BUTTON.addEventListener('click', deleteDoneTasks);
     SWITCH_BUTTONS_DIV.addEventListener('click', changeActualCategoryOfTasks);
-    PAGINATION_DIV_CONTAINER.addEventListener('click', getNumberOfCurrentPage);
+    PAGINATION_DIV_CONTAINER.addEventListener('click', setNumberOfCurrentPage);
 
     OUTPUT_DIV.addEventListener('dblclick', editTask);
 

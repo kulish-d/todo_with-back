@@ -53,7 +53,11 @@ body button {
     display: none;
 }
 
-#taskList {
+/* #taskList {
+    min-height: 250px;
+} */
+
+#task-list {
     min-height: 250px;
 }
 
@@ -62,8 +66,8 @@ body button {
     justify-content: space-between;
     align-items: center;
     /* width: 400px; */
-    width: auto;
-    max-width: 525px;
+    /* width: auto; */
+    min-width: 540px;
     word-break: break-all;
 }
 

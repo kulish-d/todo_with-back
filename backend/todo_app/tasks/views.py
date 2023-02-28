@@ -1,4 +1,4 @@
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage
 from rest_framework import viewsets
 from rest_framework import status
 from rest_framework.response import Response
@@ -18,23 +18,48 @@ class TasksViewSet(viewsets.ViewSet):
             queryset = Task.objects.all()
         queryset = queryset.order_by('id')
 
-        # request_page = request.GET['page']
+        request_page = request.GET['number_page']
 
         paginator = Paginator(queryset, TASKS_ON_PAGE)
         # print(paginator.num_pages)
 
-        serializer = TaskSerializer(queryset, many=True)
+        nextPage = 1
+        previousPage = 1
+
+        try:
+            final_data = paginator.page(request_page)
+        except EmptyPage:
+            final_data = paginator.page(paginator.num_pages)
+
+        # serializer = TaskSerializer(queryset, many=True)
+        serializer = TaskSerializer(final_data, many=True)
+
+        if final_data.has_next():
+            nextPage = final_data.next_page_number()
+        if final_data.has_previous():
+            previousPage = final_data.previous_page_number()
+
+        paginaton = {
+            'count_pages': paginator.num_pages,
+            'count': paginator.count,
+            'page': request_page,
+            'next_page': nextPage,
+            'prev_page': previousPage,
+        }
+
         tasks_data = {
             'all_tasks_count': Task.objects.all().count(),
             'active_tasks_count': Task.objects.filter(status=False).count(),
             'completed_tasks_count': Task.objects.filter(status=True).count() 
         }
         checkbox_all_status = tasks_data['all_tasks_count'] == tasks_data['completed_tasks_count']
+
         return Response({
             'data': serializer.data,
             'tasks_data': tasks_data,
             'checkbox_all_status': checkbox_all_status,
-            'pagination': paginator.num_pages},
+            'pagination': paginaton,
+            },
             status=status.HTTP_200_OK)
     
     def create(self, request):
