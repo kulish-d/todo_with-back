@@ -7,9 +7,23 @@ from tasks.serializers import TaskSerializer
 
 class TasksViewSet(viewsets.ViewSet):
     def list(self, request):
-        queryset = Task.objects.all().order_by('id')
+        category = request.GET['task_category']
+        if category == 'active':
+            queryset = Task.objects.filter(status=False)
+        elif category == 'completed':
+            queryset = Task.objects.filter(status=True)
+        else:
+            queryset = Task.objects.all()
+        queryset = queryset.order_by('id')
         serializer = TaskSerializer(queryset, many=True)
-        return Response(serializer.data)
+        tasks_data = {
+            'all_tasks_count': Task.objects.all().count(),
+            'active_tasks_count': Task.objects.filter(status=False).count(),
+            'completed_tasks_count': Task.objects.filter(status=True).count() 
+        }
+        checkbox_all_status = tasks_data['all_tasks_count'] == tasks_data['completed_tasks_count']
+        # print(tasks_data, checkbox_all_status)
+        return Response({'data': serializer.data, 'tasks_data': tasks_data, 'checkbox_all_status': checkbox_all_status})
     
     def create(self, request):
         serializer = TaskSerializer(data=request.data)

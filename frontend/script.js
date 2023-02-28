@@ -121,7 +121,7 @@ function main() {
                     })
                     
             .then(res => res.ok ? renderFunction(): console.log('error'))
-            .then(console.log(INPUT_CHECKBOX.checked))
+            // .then(console.log(INPUT_CHECKBOX.checked))
             } catch(e) {alert(e)};
         // }
     }
@@ -168,21 +168,21 @@ function main() {
                 // renderFunction();
     }
 
-    function getCurrentTasks(array) {
-            switch (categorySwitcher) {
-                case 'all':
-                    return array;
-                case 'active':
-                    return array.filter(task => !task.isDone);
-                case 'completed':
-                    return array.filter(task => task.isDone);
-            }
-    }
+    // function getCurrentTasks(array) {
+    //         switch (categorySwitcher) {
+    //             case 'all':
+    //                 return array;
+    //             case 'active':
+    //                 return array.filter(task => !task.isDone);
+    //             case 'completed':
+    //                 return array.filter(task => task.isDone);
+    //         }
+    // }
 
     function changeActualCategoryOfTasks(event) {
         if (event.target.type == 'button') {
             categorySwitcher = event.target.id;
-            currentNumberPage = 1;
+            // currentNumberPage = 1;
         }
         renderFunction();
     }
@@ -228,19 +228,19 @@ function main() {
     function drawCurrentTab() {
         switch(categorySwitcher) {
             case "all":
-                ALL_TASKS_BUTTON.classList.add("btn-outline-primary", "btn-outline-dark");
-                ACTIVE_TASKS_BUTTON.classList.remove("btn-outline-primary");
-                COMPLETED_TASKS_BUTTON.classList.remove("btn-outline-primary");
+                ALL_TASKS_BUTTON.classList.add("btn-dark");
+                ACTIVE_TASKS_BUTTON.classList.remove("btn-dark");
+                COMPLETED_TASKS_BUTTON.classList.remove("btn-dark");
                 break;
             case "active":
-                ALL_TASKS_BUTTON.classList.remove("btn-outline-primary");
-                ACTIVE_TASKS_BUTTON.classList.add("btn-outline-primary");
-                COMPLETED_TASKS_BUTTON.classList.remove("btn-outline-primary");
+                ALL_TASKS_BUTTON.classList.remove("btn-dark");
+                ACTIVE_TASKS_BUTTON.classList.add("btn-dark");
+                COMPLETED_TASKS_BUTTON.classList.remove("btn-dark");
                 break;
             case "completed":
-                ALL_TASKS_BUTTON.classList.remove("btn-outline-primary");
-                ACTIVE_TASKS_BUTTON.classList.remove("btn-outline-primary");
-                COMPLETED_TASKS_BUTTON.classList.add("btn-outline-primary");
+                ALL_TASKS_BUTTON.classList.remove("btn-dark");
+                ACTIVE_TASKS_BUTTON.classList.remove("btn-dark");
+                COMPLETED_TASKS_BUTTON.classList.add("btn-dark");
                 break;
         }
     }
@@ -260,34 +260,47 @@ function main() {
         return someArray;
     }
 
-    function drawTabs(someArray) {
-        ALL_TASKS_BUTTON.innerText = `ALL ${someArray.length}`;
-        ACTIVE_TASKS_BUTTON.innerText = `ACTIVE ${someArray.filter(task => !task.status).length}`;
-        COMPLETED_TASKS_BUTTON.innerText = `COMPLETED ${someArray.filter(task => task.status).length}`;
-        return someArray;
+    function drawTabs(serverData) {
+        ALL_TASKS_BUTTON.innerText = `ALL ${serverData.all_tasks_count}`;
+        ACTIVE_TASKS_BUTTON.innerText = `ACTIVE ${serverData.active_tasks_count}`;
+        COMPLETED_TASKS_BUTTON.innerText = `COMPLETED ${serverData.completed_tasks_count}`;
     }
 
-    function checkAll(someArray) {
-        if (someArray.length) INPUT_CHECKBOX.checked = someArray.every(task => task.status);
-        return someArray;
+    function checkAll(serverParam) {
+        INPUT_CHECKBOX.checked = serverParam;
     }
 
     function renderFunction() {
 
-        fetch(SERVER_URL)
+        fetch(`${SERVER_URL}?task_category=${categorySwitcher}`)
 
-        .then((response) => { return response.json()})
-        .then(res => drawTasks(res))
-        .then(res => checkAll(res))
-        .then(res => drawTabs(res))
+        .then((response) => {
+            if (response.status === 200) {
+                return response.json()
+            }
+            else {
+                alert(response.status, response.statusText)
+            }})
+        
+        .then(result => {
+            console.log(result);
+            drawTasks(result.data);
+            checkAll(result.checkbox_all_status);
+            drawTabs(result.tasks_data)
+        })
+        // .then(res => console.log(res))
+        // .then(res => drawTasks(res))
+        // .then(res => checkAll(res))
+        // .then(res => drawTabs(res))
 
-        // .then(drawCurrentTab())
-        // .then(checkAll())
+        // .then(res => console.log(res))
+
+        // .then(res => drawCurrentTab())
 
         // let currentList = getCurrentTasks(taskList);
         // paginationButtonsRender(currentList);
         // let slicedList = getCurrentArray(currentList);
-        .then(res => console.log(res))
+        
     }
 
     document.addEventListener('DOMContentLoaded', renderFunction);

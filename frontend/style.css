@@ -37,6 +37,10 @@ body button {
     margin: 5px;
 }
 
+/* .btn-dark:active {
+    background: white;
+} */
+
 .btn-light {
     margin: 5px;
 }
