@@ -1,5 +1,4 @@
 function main() {
-    // let taskList = [];
     let categorySwitcher = 'all';
     let SERVER_URL = 'http://127.0.0.1:8000/api/tasks/';
     let currentNumberPage = 1;
@@ -43,11 +42,6 @@ function main() {
                 body: JSON.stringify({'text': taskText, 'status': false})
             }).then(res => res.ok ? renderFunction(): console.log('error'))
             .finally(clearInput())
-
-            // .then(renderFunction())
-            // .then(clearInput())
-            // changeCurrentNumberPage();
-            
         }
     }
 
@@ -65,8 +59,6 @@ function main() {
                 },
             })
             .then(renderFunction);
-            // taskList = taskList.filter(task => task.id !== taskId);
-            // decreaseCurrentNumberPage()
         }
     }
 
@@ -81,19 +73,9 @@ function main() {
             })
             .then(renderFunction);
         }
-        //     taskList.forEach(task => {
-        //         if (task.id === taskId){
-        //             task.isDone = !task.isDone;
-        //         }
-        //     })
-        //     if (categorySwitcher != 'all') decreaseCurrentNumberPage();
-        // }
-        // renderFunction();
     }
 
     function selectAllTasks(event) {
-        // if (event.target.type === "checkbox" && INPUT_CHECKBOX.checked) {
-            // taskList.forEach(task => task.isDone = INPUT_CHECKBOX.checked);
             try {
                 fetch(`${SERVER_URL}check_all/`, {
                     method: 'PATCH',
@@ -104,9 +86,7 @@ function main() {
                     })
                     
             .then(res => res.ok ? renderFunction(): console.log('error'))
-            // .then(console.log(INPUT_CHECKBOX.checked))
             } catch(err) {alert(err)};
-        // }
     }
 
     function editTask(event) {
@@ -133,7 +113,6 @@ function main() {
             const changeTextTask = function() {
                 let text = textOnInputLineValidation(currentInput);
                 if (text){
-                    // task.text = text
                     fetch(`${SERVER_URL}${taskId}/`, {
                         method: 'PATCH',
                         headers: {
@@ -148,13 +127,11 @@ function main() {
             currentInput.addEventListener('keydown', checkButton);
             currentInput.addEventListener('blur', changeTextTask);
         }
-                // renderFunction();
     }
 
     function changeActualCategoryOfTasks(event) {
         if (event.target.type == 'button') {
             categorySwitcher = event.target.id;
-            // currentNumberPage = 1;
         }
         renderFunction();
     }
@@ -169,15 +146,9 @@ function main() {
             })
             .then(res => res.ok ? renderFunction(): console.log('error'))
         } catch (e) {alert(e)}
-        // taskList = taskList.filter(task => !task.isDone);
-        // decreaseCurrentNumberPage();
-        // renderFunction();
     }
 
-
-
     function paginationButtonsRender(serverData) {
-        // let buttonsCount = Math.ceil(serverData / TASKS_ON_PAGE);
         let buttons = "";
         for (let i = 1; i <= serverData; i++) {
             buttons += 
@@ -193,25 +164,10 @@ function main() {
         }
     }
 
-    // function decreaseCurrentNumberPage() {
-    //     if (Math.ceil(getCurrentTasks(taskList).length / TASKS_ON_PAGE) === currentNumberPage - 1) {
-    //         currentNumberPage -= 1;
+    // function changeCurrentNumberPage(serverData) {
+    //     if (Math.ceil(serverData / TASKS_ON_PAGE) > currentNumberPage) {
+    //         currentNumberPage = Math.ceil(serverData / TASKS_ON_PAGE);
     //     }
-    //     else {
-    //         currentNumberPage = Math.ceil(getCurrentTasks(taskList).length / TASKS_ON_PAGE);
-    //     }
-    // }
-
-    function changeCurrentNumberPage(serverData) {
-        // if (Math.ceil(getCurrentTasks(taskList).length / TASKS_ON_PAGE) > currentNumberPage) {
-            // currentNumberPage = Math.ceil(getCurrentTasks(taskList).length / TASKS_ON_PAGE);
-            currentNumberPage = serverData;
-        // }
-    }
-
-
-    // function getCurrentArray(arr) {
-    //     return arr.slice((currentNumberPage-1)*TASKS_ON_PAGE, currentNumberPage*TASKS_ON_PAGE)
     // }
 
     function drawCurrentTab() {
@@ -273,26 +229,19 @@ function main() {
         
         .then(result => {
             console.log(result);
+
             drawTasks(result.data);
             checkAll(result.checkbox_all_status);
             drawTabs(result.tasks_data);
             drawCurrentTab();
+            
+            // changeCurrentNumberPage(result.pagination.count_elements);
+
             paginationButtonsRender(result.pagination.count_pages);
-            // changeCurrentNumberPage(result.pagination.count_pages);
+
+            
         })
-        // .then(res => console.log(res))
-        // .then(res => drawTasks(res))
-        // .then(res => checkAll(res))
-        // .then(res => drawTabs(res))
 
-        // .then(res => console.log(res))
-
-        // .then(res => drawCurrentTab())
-
-        // let currentList = getCurrentTasks(taskList);
-        // paginationButtonsRender(currentList);
-        // let slicedList = getCurrentArray(currentList);
-        
     }
 
     document.addEventListener('DOMContentLoaded', renderFunction);

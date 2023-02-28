@@ -41,8 +41,8 @@ class TasksViewSet(viewsets.ViewSet):
 
         paginaton = {
             'count_pages': paginator.num_pages,
-            'count': paginator.count,
-            'page': request_page,
+            'count_elements': paginator.count,
+            'page': final_data.number,
             'next_page': nextPage,
             'prev_page': previousPage,
         }
