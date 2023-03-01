@@ -21,7 +21,6 @@ class TasksViewSet(viewsets.ViewSet):
         request_page = request.GET.get('number_page')
 
         paginator = Paginator(queryset, TASKS_ON_PAGE)
-        # print(paginator.num_pages)
 
         nextPage = 1
         previousPage = 1
@@ -33,7 +32,6 @@ class TasksViewSet(viewsets.ViewSet):
         except EmptyPage:
             final_data = paginator.page(paginator.num_pages)
 
-        # serializer = TaskSerializer(queryset, many=True)
         serializer = TaskSerializer(final_data, many=True)
 
         if final_data.has_next():
@@ -55,7 +53,8 @@ class TasksViewSet(viewsets.ViewSet):
             'active_tasks_count': Task.objects.filter(status=False).count(),
             'completed_tasks_count': Task.objects.filter(status=True).count() 
         }
-        checkbox_all_status = tasks_data['all_tasks_count'] == tasks_data['completed_tasks_count']
+        checkbox_all_status = (tasks_data['all_tasks_count'] == tasks_data['completed_tasks_count']
+                                    if tasks_data['all_tasks_count'] else False)
 
         return Response({
             'data': serializer.data,
@@ -90,8 +89,6 @@ class TasksViewSet(viewsets.ViewSet):
         return Response(status=status.HTTP_200_OK)
 
     def destroy(self, request, pk=None):
-        #task = Task.objects.get(id=pk)
-        # task.delete()
         if pk:
             Task.objects.get(id=pk).delete()
         else:

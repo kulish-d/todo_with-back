@@ -41,7 +41,6 @@ function main() {
                 },
                 body: JSON.stringify({'text': taskText, 'status': false})
             })
-            // .then(res => res.ok ? probablyIncreaseCurrentNumberPage(): console.log('error'))
             .then(res => res.ok ? renderFunction(): console.log('error'))
             .finally(clearInput())
         }
@@ -73,7 +72,7 @@ function main() {
                 },
                 body: JSON.stringify({'status': event.target.checked})
             })
-            .then(renderFunction);
+            .then(res => res.ok ? renderFunction(currentNumberPage): console.log('error'));
         }
     }
 
@@ -87,7 +86,7 @@ function main() {
                         body: JSON.stringify({'status': INPUT_CHECKBOX.checked})
                     })
                     
-            .then(res => res.ok ? renderFunction(): console.log('error'))
+            .then(res => res.ok ? renderFunction(currentNumberPage): console.log('error'))
             } catch(err) {alert(err)};
     }
 
@@ -166,24 +165,6 @@ function main() {
         }
     }
 
-    // function probablyIncreaseCurrentNumberPage() {
-
-    //     fetch(`${SERVER_URL}?task_category=${categorySwitcher}&number_page=${currentNumberPage}`)
-
-    //     .then((response) => {
-    //         if (response.status === 200) {
-    //             return response.json()
-    //         }
-    //         else {
-    //             alert(response.status, response.statusText)
-    //         }})
-        
-    //     .then(result => {
-    //         if (result.pagination.has_next) currentNumberPage++;
-    //     })
-    //     console.log(currentNumberPage);
-    // }
-
     function drawCurrentTab() {
         switch(categorySwitcher) {
             case "all":
@@ -242,19 +223,15 @@ function main() {
             }})
         
         .then(result => {
-            console.log(result);
+
             if (!flag) currentNumberPage = result.pagination.page
             else if (currentNumberPage > result.pagination.count_pages) currentNumberPage--;
             drawTasks(result.data);
             checkAll(result.checkbox_all_status);
             drawTabs(result.tasks_data);
             drawCurrentTab();
-            
-            // changeCurrentNumberPage(result.pagination.count_elements);
-
             paginationButtonsRender(result.pagination.count_pages);
 
-            
         })
 
     }
