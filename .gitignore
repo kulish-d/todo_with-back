@@ -1,4 +1,7 @@
 /.history
-/.vscode
+*.vscode
 /backend/virtualenvironment
 /backend/todo_app/todo_app/.env
+*node_modules
+/frontend/package*
+/frontend/.eslint*

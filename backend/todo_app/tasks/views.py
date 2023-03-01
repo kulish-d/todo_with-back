@@ -22,8 +22,8 @@ class TasksViewSet(viewsets.ViewSet):
 
         paginator = Paginator(queryset, TASKS_ON_PAGE)
 
-        nextPage = 1
-        previousPage = 1
+        next_page = 1
+        previous_page = 1
 
         try:
             final_data = paginator.page(request_page)
@@ -35,17 +35,17 @@ class TasksViewSet(viewsets.ViewSet):
         serializer = TaskSerializer(final_data, many=True)
 
         if final_data.has_next():
-            nextPage = final_data.next_page_number()
+            next_page = final_data.next_page_number()
         if final_data.has_previous():
-            previousPage = final_data.previous_page_number()
+            previous_page = final_data.previous_page_number()
 
         paginaton = {
             'count_pages': paginator.num_pages,
             'count_elements': paginator.count,
             'page': final_data.number,
             'has_next': final_data.has_next(),
-            'next_page': nextPage,
-            'prev_page': previousPage,
+            'next_page': next_page,
+            'prev_page': previous_page,
         }
 
         tasks_data = {
