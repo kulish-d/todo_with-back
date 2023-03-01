@@ -1,4 +1,4 @@
-from django.core.paginator import Paginator, EmptyPage
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from rest_framework import viewsets
 from rest_framework import status
 from rest_framework.response import Response
@@ -18,7 +18,7 @@ class TasksViewSet(viewsets.ViewSet):
             queryset = Task.objects.all()
         queryset = queryset.order_by('id')
 
-        request_page = request.GET['number_page']
+        request_page = request.GET.get('number_page')
 
         paginator = Paginator(queryset, TASKS_ON_PAGE)
         # print(paginator.num_pages)
@@ -28,6 +28,8 @@ class TasksViewSet(viewsets.ViewSet):
 
         try:
             final_data = paginator.page(request_page)
+        except PageNotAnInteger:
+            final_data = paginator.page(paginator.num_pages)
         except EmptyPage:
             final_data = paginator.page(paginator.num_pages)
 
@@ -43,6 +45,7 @@ class TasksViewSet(viewsets.ViewSet):
             'count_pages': paginator.num_pages,
             'count_elements': paginator.count,
             'page': final_data.number,
+            'has_next': final_data.has_next(),
             'next_page': nextPage,
             'prev_page': previousPage,
         }

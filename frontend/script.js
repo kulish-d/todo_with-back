@@ -40,7 +40,9 @@ function main() {
                     'Content-Type': 'application/json;charset=utf-8'
                 },
                 body: JSON.stringify({'text': taskText, 'status': false})
-            }).then(res => res.ok ? renderFunction(): console.log('error'))
+            })
+            // .then(res => res.ok ? probablyIncreaseCurrentNumberPage(): console.log('error'))
+            .then(res => res.ok ? renderFunction(): console.log('error'))
             .finally(clearInput())
         }
     }
@@ -58,7 +60,7 @@ function main() {
                     'Content-Type': 'application/json;charset=utf-8'
                 },
             })
-            .then(renderFunction);
+            .then(res => res.ok ? renderFunction(currentNumberPage, true): console.log('error'))
         }
     }
 
@@ -160,14 +162,26 @@ function main() {
     function setNumberOfCurrentPage(event) {
         if (event.target.type === 'button') {
             currentNumberPage = +event.target.id;
-            renderFunction();
+            renderFunction(currentNumberPage);
         }
     }
 
-    // function changeCurrentNumberPage(serverData) {
-    //     if (Math.ceil(serverData / TASKS_ON_PAGE) > currentNumberPage) {
-    //         currentNumberPage = Math.ceil(serverData / TASKS_ON_PAGE);
-    //     }
+    // function probablyIncreaseCurrentNumberPage() {
+
+    //     fetch(`${SERVER_URL}?task_category=${categorySwitcher}&number_page=${currentNumberPage}`)
+
+    //     .then((response) => {
+    //         if (response.status === 200) {
+    //             return response.json()
+    //         }
+    //         else {
+    //             alert(response.status, response.statusText)
+    //         }})
+        
+    //     .then(result => {
+    //         if (result.pagination.has_next) currentNumberPage++;
+    //     })
+    //     console.log(currentNumberPage);
     // }
 
     function drawCurrentTab() {
@@ -215,9 +229,9 @@ function main() {
         INPUT_CHECKBOX.checked = serverParam;
     }
 
-    function renderFunction() {
+    function renderFunction(page, flag) {
 
-        fetch(`${SERVER_URL}?task_category=${categorySwitcher}&number_page=${currentNumberPage}`)
+        fetch(`${SERVER_URL}?task_category=${categorySwitcher}&number_page=${page}`)
 
         .then((response) => {
             if (response.status === 200) {
@@ -229,7 +243,8 @@ function main() {
         
         .then(result => {
             console.log(result);
-
+            if (!flag) currentNumberPage = result.pagination.page
+            else if (currentNumberPage > result.pagination.count_pages) currentNumberPage--;
             drawTasks(result.data);
             checkAll(result.checkbox_all_status);
             drawTabs(result.tasks_data);
