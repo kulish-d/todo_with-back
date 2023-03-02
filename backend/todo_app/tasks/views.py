@@ -71,12 +71,6 @@ class TasksViewSet(viewsets.ViewSet):
             return Response(status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def retrieve(self, request, pk=None):
-        pass
-
-    def update(self, request, pk=None):
-        pass
-
     def partial_update(self, request, pk=None):
         if pk:
             task = Task.objects.get(id=pk)

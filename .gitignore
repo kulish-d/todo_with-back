@@ -1,7 +1,9 @@
-/.history
+*.history
 *.vscode
-/backend/virtualenvironment
-/backend/todo_app/todo_app/.env
+*virtualenvironment
+*venv
+*.env
+*__pycache__
 *node_modules
-/frontend/package*
-/frontend/.eslint*
+frontend/package*
+frontend/.eslint*

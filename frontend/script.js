@@ -42,15 +42,19 @@ function main() {
     }
   }
 
+  function createTackAsHTML(someTask) {
+    return `<div class="task">
+        <input type='checkbox' class="form-check-input" data-id='${someTask.id}' ${someTask.status ? 'checked' : ''}>
+        <span data-id='${someTask.id}'>${someTask.text}</span>
+        <input type='hidden' data-id='${someTask.id}' value='${someTask.text}'>
+        <button type='button' class="btn btn-outline-danger" data-id='${someTask.id}'>del</button>
+      </div>`;
+  }
+
   function drawTasks(someArray) {
     let text = '';
     someArray.forEach((task) => {
-      text += `<div class="task">
-              <input type='checkbox' class="form-check-input" data-id='${task.id}' ${task.status ? 'checked' : ''}>
-              <span data-id='${task.id}'>${task.text}</span>
-              <input type='hidden' data-id='${task.id}' value='${task.text}'>
-              <button type='button' class="btn btn-outline-danger" data-id='${task.id}'>del</button>
-          </div>`;
+      text += createTackAsHTML(task);
     });
     OUTPUT_DIV.innerHTML = text;
     return someArray;
@@ -89,7 +93,8 @@ function main() {
         drawTabs(result.tasks_data);
         drawCurrentTab();
         paginationButtonsRender(result.pagination.count_pages);
-      });
+      })
+      .catch((errr) => alert('oooops..', errr))
   }
 
   INPUT_LINE.focus();
@@ -113,7 +118,8 @@ function main() {
         },
         body: JSON.stringify({ text: taskText, status: false }),
       })
-        .then((res) => (res.ok ? renderFunction() : console.log('error')))
+        .then((res) => (res.ok ? renderFunction() : alert('data error')))
+        .catch((errorr) => alert(errorr))
         .finally(clearInput());
     }
   }
@@ -132,7 +138,8 @@ function main() {
           'Content-Type': 'application/json;charset=utf-8',
         },
       })
-        .then((res) => (res.ok ? renderFunction(currentNumberPage, true) : console.log('error')));
+        .then((res) => (res.ok ? renderFunction(currentNumberPage, true) : alert('data error')))
+        .catch((errorr) => alert(errorr));
     }
   }
 
@@ -145,21 +152,21 @@ function main() {
         },
         body: JSON.stringify({ status: event.target.checked }),
       })
-        .then((res) => (res.ok ? renderFunction(currentNumberPage) : console.log('error')));
+        .then((res) => (res.ok ? renderFunction(currentNumberPage) : alert('data error')))
+        .catch((errorr) => alert(errorr));
     }
   }
 
   function selectAllTasks() {
-    try {
-      fetch(`${SERVER_URL}check_all/`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json;charset=utf-8',
-        },
-        body: JSON.stringify({ status: INPUT_CHECKBOX.checked }),
-      })
-        .then((res) => (res.ok ? renderFunction(currentNumberPage) : console.log('error')));
-    } catch (err) { alert(err); }
+    fetch(`${SERVER_URL}check_all/`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+      },
+      body: JSON.stringify({ status: INPUT_CHECKBOX.checked }),
+    })
+      .then((res) => (res.ok ? renderFunction(currentNumberPage) : alert('data error')))
+      .catch((errorr) => alert(errorr));
   }
 
   function editTask(event) {
@@ -192,7 +199,8 @@ function main() {
             },
             body: JSON.stringify({ text: taskText }),
           })
-            .then((res) => (res.ok ? renderFunction(currentNumberPage) : console.log('error')));
+            .then((res) => (res.ok ? renderFunction(currentNumberPage) : alert('data error')))
+            .catch((errorr) => alert(errorr));
         }
       };
 
@@ -209,15 +217,14 @@ function main() {
   }
 
   function deleteDoneTasks() {
-    try {
-      fetch(`${SERVER_URL}delete_all_checked/`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json;charset=utf-8',
-        },
-      })
-        .then((res) => (res.ok ? renderFunction() : console.log('error')))
-    } catch (e) { alert(e); }
+    fetch(`${SERVER_URL}delete_all_checked/`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+      },
+    })
+      .then((res) => (res.ok ? renderFunction() : alert('data error')))
+      .catch((errorr) => alert(errorr));
   }
 
   function setNumberOfCurrentPage(event) {
