@@ -1,6 +1,7 @@
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from rest_framework import viewsets
 from rest_framework import status
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from tasks.models import Task
@@ -63,7 +64,7 @@ class TasksViewSet(viewsets.ViewSet):
             'pagination': paginaton,
             },
             status=status.HTTP_200_OK)
-    
+
     def create(self, request):
         serializer = TaskSerializer(data=request.data)
         if serializer.is_valid():
@@ -71,16 +72,18 @@ class TasksViewSet(viewsets.ViewSet):
             return Response(status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def partial_update(self, request, pk=None):
-        if pk:
-            task = Task.objects.get(id=pk)
-            serializer = TaskSerializer(task, data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(status=status.HTTP_200_OK)
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+    @action(methods=['patch'], detail=False, url_path=r'check_all/')
+    def partial_update_common(self, request):
         Task.objects.exclude(status=request.data['status']).update(status=request.data['status'])
         return Response(status=status.HTTP_200_OK)
+
+    def partial_update(self, request, pk=None):
+        task = Task.objects.get(id=pk)
+        serializer = TaskSerializer(task, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, pk=None):
         if pk:

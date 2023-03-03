@@ -3,6 +3,7 @@ function main() {
   let currentNumberPage = 1;
 
   const SERVER_URL = 'http://127.0.0.1:8000/api/tasks/';
+  const header = { 'Content-Type': 'application/json;charset=utf-8', }
   const KEY_ENTER = 'Enter';
   const KEY_ESCAPE = 'Escape';
   const { _ } = window;
@@ -113,9 +114,7 @@ function main() {
     if (taskText) {
       fetch(SERVER_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json;charset=utf-8',
-        },
+        headers: header,
         body: JSON.stringify({ text: taskText, status: false }),
       })
         .then((res) => (res.ok ? renderFunction() : alert('data error')))
@@ -134,9 +133,7 @@ function main() {
     if (event.target.type === 'button') {
       fetch(`${SERVER_URL}${+event.target.dataset.id}/`, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json;charset=utf-8',
-        },
+        headers: header,
       })
         .then((res) => (res.ok ? renderFunction(currentNumberPage, true) : alert('data error')))
         .catch((errorr) => alert(errorr));
@@ -147,9 +144,7 @@ function main() {
     if (event.target.type === 'checkbox') {
       fetch(`${SERVER_URL}${+event.target.dataset.id}/`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json;charset=utf-8',
-        },
+        headers: header,
         body: JSON.stringify({ status: event.target.checked }),
       })
         .then((res) => (res.ok ? renderFunction(currentNumberPage) : alert('data error')))
@@ -160,9 +155,7 @@ function main() {
   function selectAllTasks() {
     fetch(`${SERVER_URL}check_all/`, {
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json;charset=utf-8',
-      },
+      headers: header,
       body: JSON.stringify({ status: INPUT_CHECKBOX.checked }),
     })
       .then((res) => (res.ok ? renderFunction(currentNumberPage) : alert('data error')))
@@ -194,9 +187,7 @@ function main() {
         if (taskText) {
           fetch(`${SERVER_URL}${taskId}/`, {
             method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json;charset=utf-8',
-            },
+            headers: header,
             body: JSON.stringify({ text: taskText }),
           })
             .then((res) => (res.ok ? renderFunction(currentNumberPage) : alert('data error')))
@@ -219,9 +210,7 @@ function main() {
   function deleteDoneTasks() {
     fetch(`${SERVER_URL}delete_all_checked/`, {
       method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json;charset=utf-8',
-      },
+      headers: header,
     })
       .then((res) => (res.ok ? renderFunction() : alert('data error')))
       .catch((errorr) => alert(errorr));
