@@ -1,4 +1,4 @@
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.paginator import Paginator, InvalidPage
 from rest_framework import viewsets
 from rest_framework import status
 from rest_framework.decorators import action
@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from tasks.models import Task
 from tasks.serializers import TaskSerializer
 from todo_app.settings import TASKS_ON_PAGE
+
 
 class TasksViewSet(viewsets.ViewSet):
     def list(self, request):
@@ -28,9 +29,7 @@ class TasksViewSet(viewsets.ViewSet):
 
         try:
             final_data = paginator.page(request_page)
-        except PageNotAnInteger:
-            final_data = paginator.page(paginator.num_pages)
-        except EmptyPage:
+        except InvalidPage:
             final_data = paginator.page(paginator.num_pages)
 
         serializer = TaskSerializer(final_data, many=True)
@@ -72,7 +71,7 @@ class TasksViewSet(viewsets.ViewSet):
             return Response(status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(methods=['patch'], detail=False, url_path=r'check_all/')
+    @action(methods=['patch'], detail=False, url_path=r'check_all')
     def partial_update_common(self, request):
         Task.objects.exclude(status=request.data['status']).update(status=request.data['status'])
         return Response(status=status.HTTP_200_OK)
@@ -85,9 +84,11 @@ class TasksViewSet(viewsets.ViewSet):
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
+    @action(methods=['delete'], detail=False, url_path=r'delete_all_checked')
+    def destroy_completed(self, request):
+        Task.objects.filter(status=True).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
     def destroy(self, request, pk=None):
-        if pk:
-            Task.objects.get(id=pk).delete()
-        else:
-            Task.objects.filter(status=True).delete()
+        Task.objects.get(id=pk).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
